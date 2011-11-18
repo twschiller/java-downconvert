@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="downconvert.actionSet"
+            label="Java Downconverter"
+            visible="true">
+         <menu
+               id="downconvertMenu"
+               label="Java Downconverter">
+            <separator
+                  name="downconvertGroup">
+            </separator>
+         </menu>
+         <action
+               class="edu.washington.cs.downconvert.actions.ConvertEnhancedForAction"
+               icon="icons/sample.gif"
+               id="edu.washington.cs.downconvert.actions.ConvertEnhancedForAction"
+               label="Convert Enhanced For"
+               menubarPath="downconvertMenu/downconvertGroup"
+               tooltip="Hello, Eclipse world">
+         </action>
+         <action
+               class="edu.washington.cs.downconvert.actions.InsertGenericsCommentsAction"
+               id="edu.washington.cs.downconvert.actions.InsertGenericsCommentsAction"
+               label="Insert Generics Comments"
+               menubarPath="downconvertMenu/downconvertGroup"
+               style="push">
+         </action>
+         <action
+               class="edu.washington.cs.downconvert.actions.InsertCastsForGenericsAction"
+               id="edu.washington.cs.downconvert.actions.InsertCastsForGenerics"
+               label="Insert Casts for Generics"
+               menubarPath="downconvertMenu/downconvertGroup"
+               style="push">
+         </action>
+         <action
+               class="edu.washington.cs.downconvert.actions.RemoveGenericsAction"
+               id="edu.washington.cs.downconvert.actions.RemoveGenerics"
+               label="Remove Generics"
+               menubarPath="downconvertMenu/downconvertGroup"
+               style="push">
+         </action>
+      </actionSet>
+   </extension>
+
+
+</plugin>
