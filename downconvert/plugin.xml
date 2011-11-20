@@ -43,6 +43,13 @@
                menubarPath="downconvertMenu/downconvertGroup"
                style="push">
          </action>
+         <action
+               class="edu.washington.cs.downconvert.actions.RemoveGenericsFromClassAction"
+               id="edu.washington.cs.downconvert.actions.RemoveGenericsFromClass"
+               label="Remove Generics from Class"
+               menubarPath="downconvertMenu/downconvertGroup"
+               style="push">
+         </action>
       </actionSet>
    </extension>
 

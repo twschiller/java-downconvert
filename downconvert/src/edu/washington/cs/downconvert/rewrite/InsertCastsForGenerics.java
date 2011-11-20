@@ -1,7 +1,7 @@
-package edu.washington.cs.rewrite;
+package edu.washington.cs.downconvert.rewrite;
 
-import static edu.washington.cs.rewrite.ASTUtil.copy;
-import static edu.washington.cs.rewrite.ASTUtil.replace;
+import static edu.washington.cs.downconvert.rewrite.ASTUtil.copy;
+import static edu.washington.cs.downconvert.rewrite.ASTUtil.replace;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTVisitor;

@@ -1,4 +1,4 @@
-package edu.washington.cs.rewrite;
+package edu.washington.cs.downconvert.rewrite;
 
 import java.util.ArrayList;
 import java.util.List;

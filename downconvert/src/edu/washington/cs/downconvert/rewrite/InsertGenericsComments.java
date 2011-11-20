@@ -1,4 +1,4 @@
-package edu.washington.cs.rewrite;
+package edu.washington.cs.downconvert.rewrite;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,11 +6,13 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.InsertEdit;
@@ -80,6 +82,21 @@ public class InsertGenericsComments {
 			return c.regions;
 		}
 
+		@Override
+		public boolean visit(TypeDeclaration node){
+			if (!node.typeParameters().isEmpty()){
+				// avoid template parameters in Java Doc
+				
+				ASTNode doc = node.getJavadoc();
+				if (doc == null){
+					regions.add(new Region(node.getStartPosition(), node.getLength()));
+				}else{
+					regions.add(new Region(doc.getStartPosition() + doc.getLength(), node.getLength() - doc.getLength()));
+				}	
+			}
+			return true;
+		}
+		
 		@Override
 		public boolean visit(ParameterizedType node){
 			regions.add(new Region(node.getStartPosition(), node.getLength()));

@@ -9,9 +9,9 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import edu.washington.cs.rewrite.GlobalRewrite;
-import edu.washington.cs.rewrite.GlobalRewrite.Editor;
-import edu.washington.cs.rewrite.InsertGenericsComments;
+import edu.washington.cs.downconvert.rewrite.GlobalRewrite;
+import edu.washington.cs.downconvert.rewrite.InsertGenericsComments;
+import edu.washington.cs.downconvert.rewrite.GlobalRewrite.Editor;
 
 public class InsertGenericsCommentsAction implements IWorkbenchWindowActionDelegate{
 	private IWorkbenchWindow window;

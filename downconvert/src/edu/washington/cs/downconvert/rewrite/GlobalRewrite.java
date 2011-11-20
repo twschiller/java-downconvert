@@ -1,4 +1,4 @@
-package edu.washington.cs.rewrite;
+package edu.washington.cs.downconvert.rewrite;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;

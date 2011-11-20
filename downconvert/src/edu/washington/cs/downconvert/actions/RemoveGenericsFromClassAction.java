@@ -10,15 +10,15 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 import edu.washington.cs.downconvert.rewrite.GlobalRewrite;
-import edu.washington.cs.downconvert.rewrite.InsertCastsForGenerics;
 import edu.washington.cs.downconvert.rewrite.GlobalRewrite.Editor;
+import edu.washington.cs.downconvert.rewrite.RemoveGenericsFromClass;
 
-public class InsertCastsForGenericsAction implements IWorkbenchWindowActionDelegate {
+public class RemoveGenericsFromClassAction implements IWorkbenchWindowActionDelegate {
 	private IWorkbenchWindow window;
 	/**
 	 * The constructor.
 	 */
-	public InsertCastsForGenericsAction() {
+	public RemoveGenericsFromClassAction() {
 	}
 
 	/**
@@ -33,7 +33,7 @@ public class InsertCastsForGenericsAction implements IWorkbenchWindowActionDeleg
 				@Override
 				public TextEdit rewrite(CompilationUnit cu, Document original) {
 					cu.recordModifications();
-					InsertCastsForGenerics.convert(cu);
+					RemoveGenericsFromClass.convert(cu);
 					return cu.rewrite(original, null);
 				}
 			});
@@ -41,7 +41,7 @@ public class InsertCastsForGenericsAction implements IWorkbenchWindowActionDeleg
 			MessageDialog.openError(
 					window.getShell(),
 					"Java Downconverter",
-					"Error inserting casts for generics: " + ex.getMessage());
+					"Error removing generics: " + ex.getMessage());
 		}
 	}
 
