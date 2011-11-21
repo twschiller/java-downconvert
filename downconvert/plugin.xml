@@ -50,6 +50,13 @@
                menubarPath="downconvertMenu/downconvertGroup"
                style="push">
          </action>
+         <action
+               class="edu.washington.cs.downconvert.actions.ConvertAllAction"
+               id="edu.washington.cs.downconvert.actions.ConvertAll"
+               label="Downconvert All"
+               menubarPath="downconvertMenu/downconvertGroup"
+               style="push">
+         </action>
       </actionSet>
    </extension>
 
