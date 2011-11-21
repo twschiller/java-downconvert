@@ -10,12 +10,12 @@ import java.util.Set;
  * Test inserting JML elementType annotations for Generics
  * @author Todd Schiller
  */
-public class JmlCollections {
+public class JmlCollectionsTest {
 
 	List<String> fieldDeclaration = new ArrayList<String>();
 	Set<Number> fieldDeclaration2;
 	
-	public JmlCollections(HashSet<Number> parameter){
+	public JmlCollectionsTest(HashSet<Number> parameter){
 		this.fieldDeclaration2 = parameter;
 	}
 	

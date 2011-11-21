@@ -2,7 +2,6 @@ package edu.washington.cs.downconvert.actions;
 
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.text.edits.TextEdit;
@@ -11,12 +10,12 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 import edu.washington.cs.downconvert.rewrite.ConvertEnhancedFor;
 import edu.washington.cs.downconvert.rewrite.GlobalRewrite;
+import edu.washington.cs.downconvert.rewrite.GlobalRewrite.Editor;
 import edu.washington.cs.downconvert.rewrite.InsertCastsForGenerics;
 import edu.washington.cs.downconvert.rewrite.InsertGenericsComments;
 import edu.washington.cs.downconvert.rewrite.InsertGenericsJml;
 import edu.washington.cs.downconvert.rewrite.RemoveGenerics;
 import edu.washington.cs.downconvert.rewrite.RemoveGenericsFromClass;
-import edu.washington.cs.downconvert.rewrite.GlobalRewrite.Editor;
 
 public class ConvertAllAction implements IWorkbenchWindowActionDelegate{
 	private IWorkbenchWindow window;
@@ -33,7 +32,7 @@ public class ConvertAllAction implements IWorkbenchWindowActionDelegate{
 	 * @see IWorkbenchWindowActionDelegate#run
 	 */
 	public void run(IAction action) {
-		try{
+	
 			// Insert Casts
 			GlobalRewrite.rewriteWorkspace(new Editor(){
 				@Override
@@ -90,12 +89,7 @@ public class ConvertAllAction implements IWorkbenchWindowActionDelegate{
 				}
 			});
 			
-		}catch(Exception ex){
-			MessageDialog.openError(
-					window.getShell(),
-					"Java Downconverter",
-					"Error downconverting: " + ex.getMessage());
-		}
+		
 	}
 
 	/**

@@ -32,7 +32,7 @@ public class RemoveGenerics extends ASTVisitor{
 	@Override
 	public boolean visit(ParameterizedType node){
 		replace(node, copy(node.getType()));
-		return true;
+		return false;
 	}
 	
 	@Override

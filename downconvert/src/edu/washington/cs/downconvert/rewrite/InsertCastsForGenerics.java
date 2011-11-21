@@ -41,7 +41,7 @@ public class InsertCastsForGenerics extends ASTVisitor{
 		if (declaration.getReturnType().isTypeVariable()){
 			ITypeBinding rt = method.getReturnType();
 			
-			// TODO make this more robust (it probably doesn't work for arrays, etc.
+			// TODO make this more robust (it probably doesn't work for arrays, etc).
 			CastExpression cast = ast.newCastExpression();	
 			cast.setType(ast.newSimpleType(ast.newName(rt.getQualifiedName())));
 			cast.setExpression(copy(node));

@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -38,8 +39,8 @@ public class GlobalRewrite {
 	}
 
 	public static void rewriteWorkspace(Editor editor){
-		try{
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		try{	
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			IWorkspaceRoot root = workspace.getRoot();
 			
 			// Get all projects in the workspace
@@ -62,12 +63,15 @@ public class GlobalRewrite {
 					}
 				}
 			}
-		}catch(Exception ex){
-			throw new RuntimeException(ex);
+		}catch (JavaModelException ex){
+			throw new RuntimeException("Error accessing Java model: " + ex.getMessage(), ex);
+		}catch (CoreException ex){
+			throw new RuntimeException("Error reading project nature: " + ex.getMessage(), ex);
+		}catch (BadLocationException ex){
+			throw new RuntimeException("Error applying edit: " + ex.getMessage(), ex);
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	private static void ApplyEdit(Editor editor, ICompilationUnit cu) throws CoreException, MalformedTreeException, BadLocationException{
 		TextEdit edit = editor.rewrite(parse(cu), new Document(cu.getSource()));
 		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager(); // get the buffer manager
@@ -82,10 +86,10 @@ public class GlobalRewrite {
 			edit.apply(document);
 			
 		    // commit changes to underlying file
-			textFileBuffer.commit(null /* ProgressMonitor */, false /* Overwrite */); // (3)
+			textFileBuffer.commit(null /* ProgressMonitor */, false /* Overwrite */);
 
 		} finally {
-			bufferManager.disconnect(path, null); // (4)
+			bufferManager.disconnect(path, null);
 		}
 	}
 	

@@ -21,7 +21,13 @@ public abstract class ASTUtil {
 	
 	public static void replace(ASTNode before, ASTNode after){
 		StructuralPropertyDescriptor location = before.getLocationInParent();
-		before.getParent().setStructuralProperty(location, after);
+		
+		if (location.isChildProperty() || location.isSimpleProperty()){
+			before.getParent().setStructuralProperty(location, after);
+		}else{
+			assert location.isChildListProperty();
+			throw new IllegalArgumentException("AST node " + before.toString() + " is a child list");
+		}
 	}
 	
 	public static void replaceInBlock(Statement node, ASTNode replacement){
@@ -40,9 +46,13 @@ public abstract class ASTUtil {
 	}
 	
 	public static void replaceInBlock(Statement node, Statement replacement){
-		List<Statement> ss = new ArrayList<Statement>();
-		ss.add(replacement);
-		replaceInBlock(node, ss);
+		if (replacement instanceof Block){
+			replaceInBlock(node, (Block) replacement);
+		}else{
+			List<Statement> ss = new ArrayList<Statement>();
+			ss.add(replacement);
+			replaceInBlock(node, ss);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

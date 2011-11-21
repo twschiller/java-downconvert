@@ -10,7 +10,7 @@ import java.util.List;
  * @param <P> a unbounded type
  * @param <Q> a bounded type
  */
-public class GenericClass<P,Q extends Number>{
+public class GenericClassTest<P,Q extends Number>{
 
 	/**
 	 * Should be converted to Object
@@ -26,7 +26,7 @@ public class GenericClass<P,Q extends Number>{
 	 * Argument should be converted to type Object
 	 * @param p
 	 */
-	public GenericClass(P p){
+	public GenericClassTest(P p){
 		this.myP = p;
 		this.myQs = new ArrayList<Q>();
 	}
