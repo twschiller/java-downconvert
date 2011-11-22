@@ -5,11 +5,17 @@ import static edu.washington.cs.downconvert.rewrite.ASTUtil.replace;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 /**
  * Insert sufficient casts so that Generics can be removed.
@@ -39,16 +45,56 @@ public class InsertCastsForGenerics extends ASTVisitor{
 		IMethodBinding declaration = method.getMethodDeclaration();
 		
 		if (declaration.getReturnType().isTypeVariable()){
-			ITypeBinding rt = method.getReturnType();
 			
-			// TODO make this more robust (it probably doesn't work for arrays, etc).
-			CastExpression cast = ast.newCastExpression();	
-			cast.setType(ast.newSimpleType(ast.newName(rt.getQualifiedName())));
-			cast.setExpression(copy(node));
-			
-			replace(node, cast);
-			
-			node.delete();
+			if ((node.getParent() instanceof Expression || node.getParent() instanceof VariableDeclarationFragment || node.getParent() instanceof ReturnStatement)
+				&& !(node.getParent() instanceof CastExpression)){
+				
+				ITypeBinding rt = method.getReturnType();
+				
+				ParenthesizedExpression paren = ast.newParenthesizedExpression();
+				
+				// TODO make this more robust (it probably doesn't work for arrays, etc).
+				CastExpression cast = ast.newCastExpression();	
+				
+				if (rt.isCapture()){
+					if (rt.getWildcard() != null && rt.getBound() != null){
+						throw new RuntimeException("Lowerbounded wildcard bindings not supported for capture");
+					}
+					
+					if (rt.getTypeBounds().length == 1){
+						cast.setType(ASTUtil.convert(ast, rt.getTypeBounds()[0]));
+					}else if (rt.getTypeBounds().length > 0){
+						throw new RuntimeException("Multiple type bounds not supported for capture binding");
+					}else{
+						cast.setType(ast.newSimpleType(ast.newName("Object")));
+					}
+					
+				}else if (rt.isWildcardType()){
+					if (rt.getBound() == null){
+						cast.setType(ast.newSimpleType(ast.newName("Object")));
+					}else{
+						if (rt.isUpperbound()){
+							cast.setType(ASTUtil.convert(ast, rt.getBound()));
+						}else{
+							throw new RuntimeException("Lower bounds not supported when inserting casts");
+						}
+					}
+				}else{
+					try{
+						cast.setType(ASTUtil.convert(ast, rt));
+					}catch(Exception e){
+						throw new RuntimeException(e);
+					}
+				}
+				
+				cast.setExpression(copy(node));
+				
+				paren.setExpression(cast);
+				
+				replace(node, paren);
+				
+				node.delete();
+			}
 		}
 		return true;
 	}

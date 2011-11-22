@@ -2,18 +2,29 @@ package edu.washington.cs.downconvert.rewrite;
 
 
 import static edu.washington.cs.downconvert.rewrite.ASTUtil.copy;
+import static edu.washington.cs.downconvert.rewrite.ASTUtil.replace;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
@@ -71,9 +82,22 @@ public class ConvertEnhancedFor extends ASTVisitor{
 			node.imports().add(i);
 		}
 	}
-	
+
 	@Override
 	public boolean visit(EnhancedForStatement node){
+		Expression expr = node.getExpression();
+		ITypeBinding type = expr.resolveTypeBinding();
+		
+		if (type != null && type.isArray()){
+			doArray(node);
+		}else{
+			doIterable(node);
+		}		
+		return true;
+	}
+	
+	
+	private void doIterable(EnhancedForStatement node){
 		Block block = ast.newBlock();
 		
 		// (1) DECLARE THE ITERATOR
@@ -139,15 +163,101 @@ public class ConvertEnhancedFor extends ASTVisitor{
 		if (node.getParent() instanceof Block){
 			ASTUtil.replaceInBlock(node, block);
 		}else{
-			throw new RuntimeException("Expecting a parent block, got :" + node.getParent().getClass().toString());
+			try{
+				replace(node, block);
+			}catch(Exception ex){
+				throw new RuntimeException("Expecting a parent block, got :" + node.getParent().getClass().toString());
+			}
 		}
 		
 		// (4) DELETE THE OLD NODES
 		node.delete();
 		
-		count++;
-		
-		return true;
+		count++;		
 	}
 	
+	
+	private void doArray(EnhancedForStatement node){
+		Block block = ast.newBlock();
+		
+		ForStatement loop = ast.newForStatement();
+		
+		// (1.1) ForInit
+		VariableDeclarationFragment index = ast.newVariableDeclarationFragment();
+		index.setName(iteratorVar());
+		index.setInitializer(ast.newNumberLiteral("0"));
+		
+		VariableDeclarationExpression indexWithType = ast.newVariableDeclarationExpression(index);
+		indexWithType.setType(ast.newPrimitiveType(PrimitiveType.INT));
+		
+		loop.initializers().add(indexWithType);
+		
+		// (1.2) Expression
+		InfixExpression sizeCheck = ast.newInfixExpression();
+		sizeCheck.setOperator(InfixExpression.Operator.LESS);
+		
+		sizeCheck.setLeftOperand(iteratorVar());
+		
+		FieldAccess len = ast.newFieldAccess();
+		len.setName(ast.newSimpleName("length"));
+		len.setExpression(copy(node.getExpression()));
+		sizeCheck.setRightOperand(len);
+		
+		loop.setExpression(sizeCheck);
+		
+		// (1.3) Update
+		PrefixExpression inc = ast.newPrefixExpression();
+		inc.setOperator(Operator.INCREMENT);
+		inc.setOperand(iteratorVar());
+		loop.updaters().add(inc);
+			
+		// (2.1) DECLARE THE NEW LOOP BODY
+		Block body = ast.newBlock();
+				
+		// (2.3) CALL NEXT
+		VariableDeclarationFragment value = ast.newVariableDeclarationFragment();
+		value.setName(copy(node.getParameter().getName()));
+		
+		ArrayAccess next = ast.newArrayAccess();
+		next.setArray(copy(node.getExpression()));
+		next.setIndex(iteratorVar());
+		
+		CastExpression cast = ast.newCastExpression();
+		cast.setType(copy(node.getParameter().getType()));
+		cast.setExpression(next);
+		
+		value.setInitializer(cast);
+		
+		VariableDeclarationStatement valueWithType = ast.newVariableDeclarationStatement(value);
+		valueWithType.setType(copy(node.getParameter().getType()));
+		
+		body.statements().add(valueWithType);
+		
+		// (2.4) COPY THE ORIGINAL FOREACH LOOP BODY
+		Statement placeholder = ast.newEmptyStatement();
+		body.statements().add(placeholder);
+		ASTUtil.replaceInBlock(placeholder, copy(node.getBody()));
+		
+		// (2.5) SET THE NEW BODY BLOCK
+		loop.setBody(body);
+		
+		// (3) ADD THE WHILE LOOP (PREVIOUSLY JUST CONTAINED LOOP ITERATOR DEFINITION)
+		block.statements().add(loop);
+		
+		// (4) REPLACE THE CODE
+		if (node.getParent() instanceof Block){
+			ASTUtil.replaceInBlock(node, block);
+		}else{
+			try{
+				replace(node, block);
+			}catch(Exception ex){
+				throw new RuntimeException("Expecting a parent block, got :" + node.getParent().getClass().toString());
+			}
+		}
+		
+		// (4) DELETE THE OLD NODES
+		node.delete();
+		
+		count++;		
+	}
 }

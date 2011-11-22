@@ -33,63 +33,65 @@ public class ConvertAllAction implements IWorkbenchWindowActionDelegate{
 	 */
 	public void run(IAction action) {
 	
-			// Insert Casts
-			GlobalRewrite.rewriteWorkspace(new Editor(){
-				@Override
-				public TextEdit rewrite(CompilationUnit cu, Document original) {
-					cu.recordModifications();
-					InsertCastsForGenerics.convert(cu);
-					return cu.rewrite(original, null);
-				}
-			});
-			
-			//Rewrite Loops
-			GlobalRewrite.rewriteWorkspace(new Editor(){
-				@Override
-				public TextEdit rewrite(CompilationUnit cu, Document original) {
-					cu.recordModifications();
-					ConvertEnhancedFor.convert(cu);
-					return cu.rewrite(original, null);
-				}
-			});
-			
-			//Insert Comments
-			GlobalRewrite.rewriteWorkspace(new Editor(){
-				@Override
-				public TextEdit rewrite(CompilationUnit cu, Document original) {
-					return InsertGenericsComments.commentGenerics(original, cu);
-				}
-			});
-			
-			//Insert JML Generics Comments
-			GlobalRewrite.rewriteWorkspace(new Editor(){
-				@Override
-				public TextEdit rewrite(CompilationUnit cu, Document original) {
-					return InsertGenericsJml.commentGenerics(original, cu);
-				}
-			});
-			
-			//Remove Uses of Generics
-			GlobalRewrite.rewriteWorkspace(new Editor(){
-				@Override
-				public TextEdit rewrite(CompilationUnit cu, Document original) {
-					cu.recordModifications();
-					RemoveGenerics.convert(cu);
-					return cu.rewrite(original, null);
-				}
-			});
-			
-			//Remove Generics from Generic Classes
-			GlobalRewrite.rewriteWorkspace(new Editor(){
-				@Override
-				public TextEdit rewrite(CompilationUnit cu, Document original) {
-					cu.recordModifications();
-					RemoveGenericsFromClass.convert(cu);
-					return cu.rewrite(original, null);
-				}
-			});
-			
-		
+		//Rewrite Loops
+		GlobalRewrite.rewriteWorkspace(new Editor(){
+			@Override
+			public TextEdit rewrite(CompilationUnit cu, Document original) {
+				cu.recordModifications();
+				ConvertEnhancedFor.convert(cu);
+				return cu.rewrite(original, null);
+			}
+		});
+
+
+		// Insert Casts
+		GlobalRewrite.rewriteWorkspace(new Editor(){
+			@Override
+			public TextEdit rewrite(CompilationUnit cu, Document original) {
+				cu.recordModifications();
+				InsertCastsForGenerics.convert(cu);
+				return cu.rewrite(original, null);
+			}
+		});
+
+
+		//Insert Comments
+		GlobalRewrite.rewriteWorkspace(new Editor(){
+			@Override
+			public TextEdit rewrite(CompilationUnit cu, Document original) {
+				return InsertGenericsComments.commentGenerics(original, cu);
+			}
+		});
+
+		//Insert JML Generics Comments
+		GlobalRewrite.rewriteWorkspace(new Editor(){
+			@Override
+			public TextEdit rewrite(CompilationUnit cu, Document original) {
+				return InsertGenericsJml.commentGenerics(original, cu);
+			}
+		});
+
+		//Remove Uses of Generics
+		GlobalRewrite.rewriteWorkspace(new Editor(){
+			@Override
+			public TextEdit rewrite(CompilationUnit cu, Document original) {
+				cu.recordModifications();
+				RemoveGenerics.convert(cu);
+				return cu.rewrite(original, null);
+			}
+		});
+
+		//Remove Generics from Generic Classes
+		GlobalRewrite.rewriteWorkspace(new Editor(){
+			@Override
+			public TextEdit rewrite(CompilationUnit cu, Document original) {
+				cu.recordModifications();
+				RemoveGenericsFromClass.convert(cu);
+				return cu.rewrite(original, null);
+			}
+		});
+
+
 	}
 
 	/**

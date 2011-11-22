@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 /**
  * Remove generics from a class with type parameters. All type variables
@@ -59,6 +60,12 @@ public class RemoveGenericsFromClass extends ASTVisitor{
 	
 	@Override
 	public boolean visit(SingleVariableDeclaration node){
+		node.setType(resolveTypeVariable(node.getType()));
+		return true;
+	}
+	
+	@Override
+	public boolean visit(VariableDeclarationStatement node){
 		node.setType(resolveTypeVariable(node.getType()));
 		return true;
 	}
